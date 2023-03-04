@@ -1,12 +1,10 @@
-
-
-def PLF1(P, D, IP):
+def PLF1(IP, P, D):
     pass
-def PLF2(P, D, IP):
+def PLF2(IP, P, D):
     pass
-def PLF3(P, D, IP):
+def PLF3(IP, P, D):
     pass
-def PLF4(P, D, IP):
+def PLF4(IP, P, D):
     pass
-def PLF5(P, D, IP):
+def PLF5(IP, P, D):
     pass
