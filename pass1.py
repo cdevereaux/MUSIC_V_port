@@ -29,7 +29,7 @@ def read_general_data_statement(line):
             return None
         case 'PLS':
             data[0] = 10
-        case 'SU3':
+        case 'SI3':
             data[0] = 11
         case 'SIA':
             data[0] = 12

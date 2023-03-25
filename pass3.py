@@ -62,40 +62,36 @@ def process_general_data_statement(file, data):
             Functions[fun_num] = fun
             return (3, action_time)
         #SV3
-        case 'SV3':
-            #TODO
-            raise Exception('SV3 not yet implemented')
+        case [4, action_time, starting_index, *values]:
+            for i in range(len(values)):
+                Variables[starting_index+i] = values[i]
         #SEC
-        case 'SEC':
+        case [5, action_time]:
             #TODO
-            raise Exception('SEC not yet implemented')
+            return (5, action_time)
         #TER
         case [6, action_time]:
             #TODO: wait until action_time, then terminate
             return (6, action_time)
         #SV1
-        case 'SV1':
+        case [7, action_time, starting_index, *values]:
             print(f"Ignoring SV1 command: {data}")
         #SV2
-        case 'SV2':
+        case [8, action_time, starting_index, *values]:
             print(f"Ignoring SV2 command: {data}")
         #PLF
-        case 'PLF':
+        case [9, action_time, subroutine_num, *params]:
             print(f"Ignoring PLF command: {data}")
         #PLS
-        case 'PLS':
+        case [10, action_time, subroutine_num, *params]:
             print(f"Ignoring PLS command: {data}")
-        #SU3
-        case 'SU3':
+        #SI3 or SIA
+        case [11 | 12, action_time, starting_index, *values]:
             #TODO
-            raise Exception('SU3 not yet implemented')
-        #SIA
-        case 'SIA':
-            #TODO
-            raise Exception('SIA not yet implemented')
-        #CON
-        case 'COM':
-            print(f"Ignoring COM command: {data}")
+            for i in range(len(values)):
+                #See pg. 159 for list of special integers
+                #TODO: process changes for special integers
+                Variables[starting_index+i] = values[i]
         case other:
             print(f"Unknown general opcode: {data[0]}")
 
