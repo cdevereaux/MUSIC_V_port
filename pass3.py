@@ -57,8 +57,6 @@ def process_general_data_statement(file, data):
         #GEN
         case [3, action_time, gen_subroutine, fun_num, *other_parameters]:
             fun = generate_function(gen_subroutine, *other_parameters)
-            print(fun)
-            print(len(fun))
             Functions[fun_num] = fun
             return (3, action_time)
         #SV3
@@ -132,6 +130,7 @@ def interpret_unit_gen_param(x, note):
         case x if x < 101:
             return imposter_list(note, x-1)
         case x if x > 100:
+            Variables.setdefault(x-100, 0)
             return imposter_list(Variables, x-100)
         
 
@@ -143,6 +142,7 @@ def play_note(note, duration):
         return
 
     for unit_generator in Instruments[note[0]]:
+        print(unit_generator)
         match unit_generator:
             #OUT
             case [101, I, O]:
@@ -153,7 +153,6 @@ def play_note(note, duration):
                     O[i] += I[i]
             #OSC
             case [102, I1, I2, O, F, S]:
-                #print(unit_generator)
                 I1 = interpret_unit_gen_param(I1, note)
                 I2 = interpret_unit_gen_param(I2, note)
                 O = interpret_unit_gen_param(O, note)
@@ -161,7 +160,7 @@ def play_note(note, duration):
                 S = interpret_unit_gen_param(S, note)
                 for i in range(duration):
                     #print(I1[i], F[int(S[i]) % len(F)])
-                    O[i] = (I1[i]/2048) * F[int(S[i]) % len(F)]
+                    O[i] = (I1[i]) * F[int(S[i]) % len(F)]
                     S[i+1] = S[i] + I2[i]
             #AD2
             case [103, I1, I2, O]:
@@ -255,6 +254,10 @@ def main():
     samples = generate_raw_audio(input_file)
     output_file = open("audio.raw", "wb")
     float_array = array(samples, float32)
+
+    #Compensates for fixed-point offset in original program
+    float_array /= 2048
+    
     output_file.write(float_array.tobytes())
     output_file.close()
 
