@@ -1,3 +1,7 @@
+'''
+Mimics the printing format used by pass1 and pass2 in the original program.
+'''
+
 from numpy import float32
 from math import log10, floor
 
