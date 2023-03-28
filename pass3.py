@@ -141,7 +141,16 @@ def play_note(note, duration):
     if note[0] not in Instruments:
         return
 
+    set_new_function = None
     for unit_generator in Instruments[note[0]]:
+        
+        if set_new_function is not None:
+            if unit_generator[0] == 102:
+                unit_generator[4] = set_new_function
+            elif unit_generator[0] == 105:
+                unit_generator[2] = set_new_function
+            set_new_function = None
+        
         print(unit_generator)
         match unit_generator:
             #OUT
@@ -184,8 +193,23 @@ def play_note(note, duration):
                     S[i+1] = S[i] + I2[i]
             #ENV
             case [105, I1, F, O, I2, I3, I4, S]:
-                #TODO
-                raise Exception('ENV not yet implemented')
+                I1 = interpret_unit_gen_param(I1, note)
+                T = interpret_unit_gen_param(T, note)
+                O = interpret_unit_gen_param(O, note)
+                I2 = interpret_unit_gen_param(I2, note)
+                I3 = interpret_unit_gen_param(I3, note)
+                I4 = interpret_unit_gen_param(I4, note)
+                S = interpret_unit_gen_param(S, note)
+                for i in range(duration):
+                    if S[i] >= FUNCTION_LEN:
+                        S[i] %= FUNCTION_LEN
+                    O[i] = (I1[i]) * F(S[i])
+                    if S[i] < FUNCTION_LEN/4:
+                        S[i+1] = S[i] + I2[i]
+                    elif S[i] < FUNCTION_LEN/2:
+                        S[i+1] = S[i] + I3[i]
+                    else:
+                        S[i+1] = S[i] + I4[i]
             #STR
             case [106, I1, I2, O]:
                 I1 = interpret_unit_gen_param(I1, note)
@@ -222,14 +246,37 @@ def play_note(note, duration):
             #FLT
             case [112, I1, I2, I3, O]:
                 raise Exception('FLT not yet implemented')
-            case 'RAH':
-                data[0] = 111
-            case 'IOS':
-                data[0] = 113
-            case 'SET':
-                #TODO
-                data[0] = 110
-                print("Error: SET not currently implemented.")
+            #RAH
+            case [111, I1, I2, O, S, T]:
+                I1 = interpret_unit_gen_param(I1, note)
+                I2 = interpret_unit_gen_param(I2, note)
+                O = interpret_unit_gen_param(O, note)
+                S = interpret_unit_gen_param(S, note)
+                T = interpret_unit_gen_param(T, note)
+                for i in range(duration):
+                    if S[i] >= FUNCTION_LEN:
+                        S[i] %= FUNCTION_LEN
+                        T[i] = random()
+                    O[i] = T[i]
+                    S[i+1] = S[i] + I2[i]
+            #IOS
+            case [113, I1, I2, O, F, S]:
+                I1 = interpret_unit_gen_param(I1, note)
+                I2 = interpret_unit_gen_param(I2, note)
+                O = interpret_unit_gen_param(O, note)
+                F = interpret_unit_gen_param(F, note)
+                S = interpret_unit_gen_param(S, note)
+                for i in range(duration):
+                    frac = S[i] - int(S[i])
+                    O[i] = (I1[i]) * ( 
+                        (1 - frac) * F[int(S[i]) % len(F)] + 
+                        (frac) * F[int(S[i] + 1) % len(F)] )
+                    S[i+1] = S[i] + I2[i]
+            #SET
+            case [110, I1]:
+                I1 = interpret_unit_gen_param(I1, note)
+                if I1 > 0:
+                    set_new_function = int(I1)
             case other:
                 print(f"Unknown Unit Generator: {note}")
 

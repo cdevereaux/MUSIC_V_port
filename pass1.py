@@ -71,10 +71,7 @@ def read_instrument_data_statement(line, time):
         case 'IOS':
             data[0] = 113
         case 'SET':
-            #TODO
             data[0] = 110
-            print("Error: SET not currently implemented.")
-            return None
         case 'COM':
             print(line)
             return None
