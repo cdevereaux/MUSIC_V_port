@@ -1,6 +1,7 @@
 from sys import argv
 from imposterlist import imposter_list
 from numpy import array, float32
+from random import random
 
 SAMPLING_RATE = 44100
 FUNCTION_LEN = 512
@@ -85,7 +86,6 @@ def process_general_data_statement(file, data):
             print(f"Ignoring PLS command: {data}")
         #SI3 or SIA
         case [11 | 12, action_time, starting_index, *values]:
-            #TODO
             for i in range(len(values)):
                 #See pg. 159 for list of special integers
                 #TODO: process changes for special integers
@@ -148,7 +148,6 @@ def play_note(note, duration):
             case [101, I, O]:
                 I = interpret_unit_gen_param(I, note)
                 O = interpret_unit_gen_param(O, note)
-                
                 for i in range(duration):
                     O[i] += I[i]
             #OSC
@@ -159,7 +158,6 @@ def play_note(note, duration):
                 F = interpret_unit_gen_param(F, note)
                 S = interpret_unit_gen_param(S, note)
                 for i in range(duration):
-                    #print(I1[i], F[int(S[i]) % len(F)])
                     O[i] = (I1[i]) * F[int(S[i]) % len(F)]
                     S[i+1] = S[i] + I2[i]
             #AD2
@@ -171,15 +169,32 @@ def play_note(note, duration):
                     O[i] = I1[i] + I2[i]
             #RAN
             case [104, I1, I2, O, S, T1, T2]:
-                #TODO
-                raise Exception('RAN not yet implemented')
+                I1 = interpret_unit_gen_param(I1, note)
+                I2 = interpret_unit_gen_param(I2, note)
+                O = interpret_unit_gen_param(O, note)
+                S = interpret_unit_gen_param(S, note)
+                T1 = interpret_unit_gen_param(T1, note)
+                T2 = interpret_unit_gen_param(T2, note)
+                for i in range(duration):
+                    if S[i] >= FUNCTION_LEN:
+                        S[i] %= FUNCTION_LEN
+                        T1[i] = T1[i] + T2[i]
+                        T2[i] = random() - T1[i]
+                    O[i] = (I1[i]) * (T1[i] + T2[i]*S[i])
+                    S[i+1] = S[i] + I2[i]
             #ENV
             case [105, I1, F, O, I2, I3, I4, S]:
                 #TODO
                 raise Exception('ENV not yet implemented')
             #STR
-            case 'STR':
-                data[0] = 106
+            case [106, I1, I2, O]:
+                I1 = interpret_unit_gen_param(I1, note)
+                I2 = interpret_unit_gen_param(I2, note)
+                #In the original program, this writes to the block adjacent to O as well
+                O = interpret_unit_gen_param(O, note)
+                for i in range(duration):
+                    O[2*i] += I1[i]
+                    O[2*i + 1] += I2[i]
             #AD3
             case [107, I1, I2, I3, O]:
                 I1 = interpret_unit_gen_param(I1, note)
@@ -197,10 +212,16 @@ def play_note(note, duration):
                 O = interpret_unit_gen_param(O, note)
                 for i in range(duration):
                     O[i] = I1[i] + I2[i] + I3[3] + I4[i]
-            case 'MLT':
-                data[0] = 109
-            case 'FLT':
-                data[0] = 112
+            #MLT
+            case [109, I1, I2, O]:
+                I1 = interpret_unit_gen_param(I1, note)
+                I2 = interpret_unit_gen_param(I2, note)
+                O = interpret_unit_gen_param(O, note)
+                for i in range(duration):
+                    O[i] = I1[i] * I2[i]
+            #FLT
+            case [112, I1, I2, I3, O]:
+                raise Exception('FLT not yet implemented')
             case 'RAH':
                 data[0] = 111
             case 'IOS':
