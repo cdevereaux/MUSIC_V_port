@@ -3,6 +3,9 @@
 *.data
 *.raw
 
+# Output
+*.wav
+
 # VS Code
 .vscode/
 
