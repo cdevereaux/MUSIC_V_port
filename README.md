@@ -15,4 +15,4 @@ These milestones will be tested by comparing the generated audio with that gener
 ```
 python path_to_music5.py path_to_score_file
 ```
-Note: PLS subroutines are not yet supported. **Requires python version 3.10 or greater.**
+** Note: Requires python version 3.10 or greater. **
