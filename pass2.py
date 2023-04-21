@@ -1,22 +1,80 @@
 from sys import argv
+from format import format_line
 
+G = [0]*1000
 
 def sort_data_statements(input_file):
     lines = [line for line in input_file]
     #sort() is guarenteed to be stable, so no need to keep track of the indices of the lines
     lines.sort(key=lambda line: int(float(line.split()[2])))
-    return ''.join(lines)
+    return [ [int(float(i)) for i in line.split()[:2]] + [float(i) for i in line.split()[2:]] for line in lines]
+
+
+#Converts note freqs given in hertz
+def CONVT(P, G):
+    if G[100] != 5:
+        return
+    if P[1] == 1 and P[3] == 1:
+        P[6] = 511.0 * P[6] / 44100
+    return
 
 
 def main():
+    global G
+
     input_file = open(argv[1], "r")
-    output = sort_data_statements(input_file)
-    #TODO: Handle SV2, SIA, and PLS
-    #TODO: Apply metronomic time to opcodes listed on page 147
+    data_statements = sort_data_statements(input_file)
+
+    last_T = 0; last_B = 0
+    for data in data_statements:
+        match data[1:]:
+            #SV2 or SIA
+            case [8 | 12, action_time, starting_index, *values]:
+                for i in range(len(values)):
+                    G[int(starting_index)+i] = values[i]
+            #PLS
+            case [10, action_time, subroutine_num, *params]:
+                call_PLS(data, output, G, data_statements)
+
+        #Apply metronomic time scaling
+        if G[1] != 0:
+            B = data[2]
+            i = 0
+            while G[G[1] + 2*i] < B:
+                i += 1
+            tempo = G[G[1] + 2*i - 2] + (G[G[1] + 2*i] - G[G[1] + 2*i - 2])*(B - G[G[1] + 2*i - 1])/(G[G[1] + 2*i + 1] - G[G[1] + 2*i - 1]) 
+            data[2] = last_T + (B - last_B)*(60/tempo)
+            last_T = data[2]
+            last_B = B
+
+            if data[1] == 1:
+                data[4] = data[4] * (60/tempo)
+        
+
+        #Implement CONVT
+        CONVT(data, G)
+    
+
     output_file = open("pass2.out", "w")
-    #TODO: Implement CONVT
+
+    output = [format_line(line) for line in data_statements]
+    output = ''.join(output )
     output_file.write(output)
 
 
 if __name__ == '__main__':
     main()
+
+def call_PLS(data, output, G, data_statements):
+    pass
+
+def PLS1(IP, P, G, I, T, D):
+    pass
+def PLS2(IP, P, G, I, T, D):
+    pass
+def PLS3(IP, P, G, I, T, D):
+    pass
+def PLS4(IP, P, G, I, T, D):
+    pass
+def PLS5(IP, P, G, I, T, D):
+    pass

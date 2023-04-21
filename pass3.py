@@ -62,14 +62,13 @@ def process_general_data_statement(file, data):
         #SV3
         case [4, action_time, starting_index, *values]:
             for i in range(len(values)):
-                Variables[starting_index+i] = values[i]
+                Variables[int(starting_index)+i] = values[i]
         #SEC
         case [5, action_time]:
             #TODO
             return (5, action_time)
         #TER
         case [6, action_time]:
-            #TODO: wait until action_time, then terminate
             return (6, action_time)
         #SV1
         case [7, action_time, starting_index, *values]:
@@ -87,8 +86,7 @@ def process_general_data_statement(file, data):
         case [11 | 12, action_time, starting_index, *values]:
             for i in range(len(values)):
                 #See pg. 159 for list of special integers
-                #TODO: process changes for special integers
-                Variables[starting_index+i] = values[i]
+                Variables[int(starting_index)+i] = values[i]
         case other:
             print(f"Unknown general opcode: {data[0]}")
 
@@ -309,7 +307,6 @@ def generate_raw_audio(file):
             #remove any old notes
             Note_Parameters = [note for note in Note_Parameters if note[1] + note[3] > played_to]
         
-        #TODO: Check for TER
         process_general_data_statement(file, data)
     
     return output
