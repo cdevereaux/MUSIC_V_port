@@ -43,7 +43,6 @@ def process_general_data_statement(file, data):
     global Note_Parameters
     global Functions
     
-    print(data)
     match data:
         #NOT
         case [1, action_time, instrument_number, *other_parameters]:
@@ -151,7 +150,6 @@ def play_note(note, duration):
                 unit_generator[2] = set_new_function
             set_new_function = None
         
-        print(unit_generator)
         match unit_generator:
             #OUT
             case [101, I, O]:

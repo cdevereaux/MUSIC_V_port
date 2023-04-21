@@ -9,7 +9,7 @@ def GEN2(params, FUNCTION_LEN):
     N = params[-1]
     P = FUNCTION_LEN
     function = [sum([params[k]*sin(2*pi*(k+1)*i/(P-1)) for k in range(int(abs(N)))])
-        + sum([params[abs(N) + k]*cos(2*pi*k*i/(P-1)) for k in range(int(len(params) - abs(N) - 1))])
+        + sum([params[int(abs(N)) + k]*cos(2*pi*k*i/(P-1)) for k in range(int(len(params) - abs(N) - 1))])
         for i in range(P)]
     if N > 0:
         function = [value/max(function) for value in function]
