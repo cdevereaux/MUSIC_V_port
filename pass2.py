@@ -10,15 +10,6 @@ def sort_data_statements(input_file):
     return [ [int(float(i)) for i in line.split()[:2]] + [float(i) for i in line.split()[2:]] for line in lines]
 
 
-#Converts note freqs given in hertz
-def CONVT(P, G):
-    if G[100] != 5:
-        return
-    if P[1] == 1 and P[3] == 1:
-        P[6] = 511.0 * P[6] / 44100
-    return
-
-
 def main():
     global G
 
@@ -34,7 +25,7 @@ def main():
                     G[int(starting_index)+i] = values[i]
             #PLS
             case [10, action_time, subroutine_num, *params]:
-                call_PLS(data, output, G, data_statements)
+                call_PLS(data, G, data_statements)
 
         #Apply metronomic time scaling
         if G[1] != 0:
@@ -62,19 +53,41 @@ def main():
     output_file.write(output)
 
 
-if __name__ == '__main__':
-    main()
+#Converts note freqs given in hertz
+def CONVT(P, G):
+    if G[100] != 5:
+        return
+    if P[1] == 1 and P[3] == 1:
+        P[6] = 511.0 * P[6] / 44100
+    return
+
 
 def call_PLS(data, output, G, data_statements):
+    P = data[:1]
+    match int(data[2]):
+        case 1:
+            PLS1(P, G, data_statements)
+        case 2:
+            PLS2(P, G, data_statements)
+        case 3:
+            PLS3(P, G, data_statements)
+        case 4:
+            PLS4(P, G, data_statements)
+        case 5:
+            PLS5(P, G, data_statements)
+        case _:
+            raise ValueError(f"Unrecognized PLF subroutine called: PLF{data_statement[2]}")
+
+def PLS1(P, G, data_statements):
+    pass
+def PLS2(P, G, data_statements):
+    pass
+def PLS3(P, G, data_statements):
+    pass
+def PLS4(P, G, data_statements):
+    pass
+def PLS5(P, G, data_statements):
     pass
 
-def PLS1(IP, P, G, I, T, D):
-    pass
-def PLS2(IP, P, G, I, T, D):
-    pass
-def PLS3(IP, P, G, I, T, D):
-    pass
-def PLS4(IP, P, G, I, T, D):
-    pass
-def PLS5(IP, P, G, I, T, D):
-    pass
+if __name__ == '__main__':
+    main()
