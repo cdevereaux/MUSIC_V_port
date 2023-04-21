@@ -5,7 +5,7 @@ An implementation of the Music V audio programming language written in Python. B
 
 ## Remaining Milestones
 
-1. Add support for PLF, PLS, and CONVT subroutines and metronomic operations.
+1. Add support for ~~PLF~~, PLS, and ~~CONVT~~ subroutines and ~~metronomic operations~~.
 2. Implement a system by which aliases may be provided for the user-defined subroutines used in a given score. Allowing multiple scores to be computed without modifying the source code. Create one or two examples for this.
 3. Add support for more scores, such as some of those found here: https://github.com/vlazzarini/MUSICV/tree/cprog-lb/scores
 
@@ -15,4 +15,4 @@ These milestones will be tested by comparing the generated audio with that gener
 ```
 python path_to_music5.py path_to_score_file
 ```
-Note: PLF, PLS, and CONVT subroutines and metronomic operations are not yet supported. **Requires python version 3.10 or greater.**
+Note: PLS subroutines are not yet supported. **Requires python version 3.10 or greater.**
